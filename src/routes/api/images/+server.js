@@ -2,25 +2,11 @@
 
 import { connectDB } from "$lib/server/db";
 import { Image } from "$lib/server/model/image.model";
-import { isAdmin } from "$lib/utils/utils";
+import { uploadPhoto } from "$lib/service/image.service";
+import { isAdmin } from "$lib/utils/auth.js";
+import { isValidImageType } from "$lib/utils/utils.js";
 import mongoose from "mongoose";
 
-
-// export async function GET() {
-//     try {
-//         await connectDB();
-//         const uploadedImages = await Image.find({});
-
-//         return new Response(JSON.stringify(uploadedImages), {
-//             status: 200
-//         });
-//     } catch (error) {
-//         console.log("Error: ", error?.message)
-//         return new Response(JSON.stringify({ error: error?.message }), {
-//             status: 500
-//         });
-//     }
-// }
 
 export async function GET({ url }) {
     try {
@@ -87,75 +73,6 @@ export async function GET({ url }) {
     }
 }
 
-export async function POST({ request }) {
-    try {
-        const user = null; // Replace with actual user retrieval logic
-        if (!isAdmin(user)) {
-            return new Response(
-                JSON.stringify({ error: "Unauthorized" }),
-                { status: 401 }
-            );
-        }
-
-        await connectDB();
-        let body;
-
-        try {
-            body = await request.json();
-        } catch (error) {
-            return new Response(JSON.stringify({ error: "body is required." }), {
-                status: 400
-            });
-        }
-
-        const { image_url, image_urls } = body;
-
-        if (!image_url && (!image_urls || image_urls.length === 0)) {
-            return new Response(JSON.stringify({ error: "either image_url or image_urls is required." }), {
-                status: 400
-            });
-        }
-
-        if (image_url && Array.isArray(image_url)) {
-            return new Response(JSON.stringify({ error: "image_url cannot be an array." }), {
-                status: 400
-            });
-        }
-
-        if (image_urls && !Array.isArray(image_urls)) {
-            return new Response(JSON.stringify({ error: "image_urls must be an array." }), {
-                status: 400
-            });
-        }
-
-        let response;
-
-        if (Array.isArray(image_urls)) {
-            const imagesPayload = image_urls.map((url) => ({ url: url }));
-            response = await Image.insertMany(imagesPayload);
-        } else {
-            const payload = {
-                url: image_url,
-            }
-
-            response = await Image.create(payload);
-
-        }
-
-        return new Response(JSON.stringify(response), {
-            status: 201
-        });
-
-    } catch (error) {
-        console.log("Error: ", error?.message)
-        return new Response(JSON.stringify({ error: error?.message }), {
-            status: 500
-        });
-    }
-
-}
-
-
 export async function DELETE({ request }) {
     try {
         const user = null; // Replace with actual user retrieval logic
@@ -216,6 +133,64 @@ export async function DELETE({ request }) {
         );
     }
 }
+
+export async function POST({ request }) {
+    try {
+        const user = null; // replace with real user logic
+
+        if (!isAdmin(user)) {
+            return new Response(JSON.stringify({ error: "Unauthorized" }), {
+                status: 401
+            });
+        }
+
+        await connectDB();
+
+        const form = await request.formData();
+
+        // 📌 All files with key "photos"
+        const files = form.getAll("photos");
+
+        if (!files || files.length === 0) {
+            return new Response(JSON.stringify({ error: "No files sent" }), {
+                status: 400
+            });
+        }
+
+        for (const file of files) {
+            if (!isValidImageType(file)) {
+                return new Response(JSON.stringify({ error: "Invalid image type" }), {
+                    status: 400
+                });
+            }
+        }
+
+        const image_urls = [];
+
+
+        for (const file of files) {
+            const buffer = Buffer.from(await file.arrayBuffer());
+            const image_url = await uploadPhoto(file);
+            image_urls.push(image_url);
+        }
+
+        const insertPayload = image_urls.map((url) => ({ url }));;
+        await Image.insertMany(insertPayload);
+
+        return new Response(JSON.stringify({ message: "Images uploaded successfully" }), {
+            status: 200
+        });
+
+    } catch (err) {
+        console.log("Upload Error:", err);
+        return new Response(JSON.stringify({ error: err.message }), {
+            status: 500
+        });
+    }
+}
+
+
+
 
 
 

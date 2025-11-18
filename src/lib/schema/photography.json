@@ -1,0 +1,17 @@
+[
+    {
+        "title": "collase",
+        "urls": [],
+        "max_items": 5
+    },
+    {
+        "title": "latest_one",
+        "urls": [],
+        "max_items": 6
+    },
+    {
+        "title": "showcase",
+        "urls": [],
+        "max_items": 10
+    }
+]
