@@ -5,7 +5,8 @@
   import { onMount, beforeUpdate } from 'svelte';
 
   // Auto-reactive store values
-  $: images = $imagesStore;
+  export let images = [];
+
   $: currentIndex = $currentSliderIndex;
 
   let intervalId;
@@ -17,7 +18,7 @@
   function startSlider() {
     intervalId = setInterval(() => {
       // Get the current value directly from the store for the interval
-      currentSliderIndex.update(n => (n + 1) % images.sliderImages.length);
+      currentSliderIndex.update(n => (n + 1) % images.length);
     }, 4000); // Changed to 4 seconds
   }
 
@@ -39,7 +40,7 @@
 >
 
   <!-- Slides -->
-  {#each images.sliderImages as image, index}
+  {#each images as image, index}
     <img
       src={image}
       alt={`Photography Cover Image ${index + 1}`}
@@ -53,7 +54,8 @@
 
   <!-- Dots -->
   <div class="absolute bottom-10 w-full flex justify-center gap-3 z-20">
-    {#each images.sliderImages as _, index}
+    {#each images as _, index}
+      <!-- svelte-ignore element_invalid_self_closing_tag -->
       <button
         onclick={() => changeSlide(index)}
         class="w-3 h-3 rounded-full cursor-pointer transition 

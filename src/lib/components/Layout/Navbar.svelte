@@ -22,7 +22,7 @@
 >
   <a href="/" class="hover:text-yellow-300 text-xl font-bold">ADP</a>
 
-  <h1 class="hidden md:block md:text-3xl font-sans font-thin tracking-widest uppercase">
+  <h1 class="hidden md:block md:text-3xl font-sans font-semibold text-white tracking-widest uppercase">
     ANUPAM DUTTA PHOTOGRAPHY
   </h1>
 

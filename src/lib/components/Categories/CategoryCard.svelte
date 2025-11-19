@@ -1,6 +1,8 @@
 <script>
   export let category;
   export let index;
+
+  
   const isEven = index % 2 === 0;
 </script>
 
