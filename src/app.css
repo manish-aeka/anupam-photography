@@ -120,3 +120,80 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Kenburns Zoom Animation */
+.kenburns-zoom {
+    animation: kenburnsZoom 8s ease-in-out;
+}
+
+@keyframes kenburnsZoom {
+    0% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(1.1);
+    }
+}
+
+/* Fade Transitions */
+.fade {
+    transition: opacity 0.4s ease-in-out;
+}
+
+/* Modal Animations */
+#image-modal {
+    transition: opacity 0.4s ease;
+}
+.is-even {
+  transform: translateX(-80px);
+}
+.is-odd {
+  transform: translateX(80px);
+}
+.gallery-reveal {
+  opacity: 0;
+  transform: translateY(30px) scale(0.95);
+}
+
+.gallery-revealed {
+  opacity: 1 !important;
+  transform: translateY(0) scale(1) !important;
+  transition: all 0.8s cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+#image-modal.show {
+    opacity: 1;
+}
+
+#modal-img {
+    transition: transform 0.4s ease;
+    transform: scale(0.7);
+}
+
+#modal-img.show {
+    transform: scale(1);
+}
+
+/* Smooth scrolling */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Loading states */
+.gallery-img {
+    transition: transform 0.5s ease;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1f2937;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #4f46e5;
+    border-radius: 4px;
+}
