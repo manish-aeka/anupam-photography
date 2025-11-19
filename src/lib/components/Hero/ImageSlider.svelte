@@ -1,8 +1,8 @@
 <script>
-// @ts-nocheck
+  // @ts-nocheck
 
-  import { imagesStore, currentSliderIndex } from '$lib/stores/images.js';
-  import { onMount, beforeUpdate } from 'svelte';
+  import { imagesStore, currentSliderIndex } from "$lib/stores/images.js";
+  import { onMount, beforeUpdate } from "svelte";
 
   // Auto-reactive store values
   export let images = [];
@@ -18,8 +18,8 @@
   function startSlider() {
     intervalId = setInterval(() => {
       // Get the current value directly from the store for the interval
-      currentSliderIndex.update(n => (n + 1) % images.length);
-    }, 4000); // Changed to 4 seconds
+      currentSliderIndex.update((n) => (n + 1) % images.length);
+    }, 1000); // Changed to 4 seconds
   }
 
   function stopSlider() {
@@ -38,7 +38,6 @@
   onmouseenter={stopSlider}
   onmouseleave={startSlider}
 >
-
   <!-- Slides -->
   {#each images as image, index}
     <img
@@ -46,9 +45,7 @@
       alt={`Photography Cover Image ${index + 1}`}
       class="absolute inset-0 w-full h-full object-cover
              transition-opacity duration-1000 ease-in-out
-             {index === currentIndex
-                ? 'opacity-100 z-10'
-                : 'opacity-0 z-0'}"
+             {index === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'}"
     />
   {/each}
 
@@ -58,11 +55,10 @@
       <!-- svelte-ignore element_invalid_self_closing_tag -->
       <button
         onclick={() => changeSlide(index)}
-        class="w-3 h-3 rounded-full cursor-pointer transition 
+        class="w-3 h-3 rounded-full cursor-pointer transition
                {index === currentIndex ? 'bg-white' : 'bg-white/50'}"
         aria-label={`Go to slide ${index + 1}`}
       />
     {/each}
   </div>
-
 </div>
