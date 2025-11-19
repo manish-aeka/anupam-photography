@@ -16,9 +16,12 @@
         preview?: string;
     };
 
+    let imageUploadLoading = $state(false);
+    let loading = $state(false);
+
     const currentPath = derived(page, ($page) => $page.url.pathname);
 
-    let images = $state([]);
+    let images = $state<any[]>([]);
 
     const files = writable<FileItem[]>([]);
 
@@ -28,8 +31,42 @@
         return `${Math.round(size / 1024)} kb`;
     }
 
-    function uploadFiles() {
-        alert("Upload functionality not implemented yet.");
+    async function uploadFiles() {
+        try {
+            imageUploadLoading = true;
+
+            const form = new FormData();
+
+            // ✅ append each file individually
+            $files.forEach((item) => {
+                form.append("photos", item.file);
+            });
+
+            const response = await fetch("/api/images", {
+                method: "POST",
+                body: form,
+            });
+
+            const data = await response.json();
+            console.log("Upload result:", data);
+            const newlyAdded = data.data || [];
+
+            console.log(newlyAdded);
+
+            if (!response.ok) {
+                alert(data.error || "Upload failed");
+                return;
+            }
+            images = [...newlyAdded, ...images];
+
+            $files = [];
+            alert("Uploaded successfully!");
+        } catch (error) {
+            console.error("Upload error:", error);
+            alert("Something went wrong!");
+        } finally {
+            imageUploadLoading = false;
+        }
     }
 
     function addFiles(fileList: FileList) {
@@ -63,13 +100,15 @@
 
     const fetchImages = async () => {
         try {
+            loading = true;
             // Placeholder for fetching images logic
-            const response = await fetch("/api/images");
+            const response = await fetch("/api/images?order=desc");
             const data = await response.json();
-            images = data;
-            console.log(data);
+            images = data?.data;
         } catch (error) {
             console.log("Error: ", error.message);
+        } finally {
+            loading = false;
         }
     };
 
@@ -94,14 +133,14 @@
                     role="region"
                     aria-label="File upload area"
                 >
-                    <UploadCloud class="w-20 h-20 text-purple-500" />
-                    <h2 class="text-lg font-semibold text-gray-700">
+                    <UploadCloud class="w-20 h-20 text-white" />
+                    <h2 class="text-lg font-semibold text-white">
                         Drag & drop here
                     </h2>
-                    <p class="text-gray-500 -mt-3">or</p>
+                    <p class="text-white -mt-3">or</p>
                     <Button
                         variant="outline"
-                        class="border-yellow-500 text-yellow-600 hover:bg-yellow-50 cursor-pointer"
+                        class="border-white text-white hover:bg-blue-500 cursor-pointer"
                         onclick={() => fileInput && fileInput.click()}
                     >
                         Browse Files
@@ -132,7 +171,7 @@
                     <p class="text-gray-500 -mt-3">or</p>
                     <Button
                         variant="outline"
-                        class="border-yellow-500 text-yellow-600 hover:bg-yellow-50 cursor-pointer"
+                        class="border-white text-white hover:bg-blue-500 cursor-pointer"
                         onclick={() => fileInput && fileInput.click()}
                     >
                         Browse Files
@@ -166,14 +205,14 @@
                                         class="w-full h-full object-cover rounded-md"
                                     />
                                 {:else}
-                                    <ImageIcon class="text-purple-600" />
+                                    <ImageIcon class="text-white" />
                                 {/if}
                             </div>
                             <div class="flex-1">
-                                <p class="font-medium text-gray-700">
+                                <p class="font-medium text-white">
                                     {item.name}
                                 </p>
-                                <p class="text-sm text-gray-500 mt-1">
+                                <p class="text-sm text-white mt-1">
                                     {item.sizeKB}
                                 </p>
                             </div>
@@ -189,35 +228,42 @@
             {/if}
         </div>
         <Button
+            disabled={$files.length === 0 || imageUploadLoading}
             variant="outline"
             class="flex justify-center items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white border-none cursor-pointer hover:text-white"
             onclick={uploadFiles}
         >
             <Upload />
-            Upload
+            {imageUploadLoading ? "Uploading..." : "Upload Images"}
         </Button>
     </div>
 
-    <div>
-        <h2 class="text-xl font-semibold mb-4 text-white">Uploaded Images</h2>
-        <div class="border rounded-lg p-4">
-            {#if images?.data?.length === 0}
-                <p class="text-gray-500">No images uploaded yet.</p>
-            {:else}
-                <div
-                    class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
-                >
-                    {#each images?.data as img, idx}
-                        <img
-                            src={`data:image/jpeg;base64,${img.url}`}
-                            alt={img.alt || `Image ${idx + 1}`}
-                            class="object-cover w-full h-full border rounded-lg"
-                        />
-                    {/each}
-                </div>
-            {/if}
+    {#if loading}
+        <p class="text-white text-center mt-12 text-2xl">Loading images...</p>
+    {:else}
+        <div>
+            <h2 class="text-xl font-semibold mb-4 text-white">
+                Uploaded Images
+            </h2>
+            <div class="border rounded-lg p-4">
+                {#if images?.length === 0}
+                    <p class="text-white">No images uploaded yet.</p>
+                {:else}
+                    <div
+                        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
+                    >
+                        {#each images as img, idx}
+                            <img
+                                src={`data:image/jpeg;base64,${img.url}`}
+                                alt={img.alt || `Image ${idx + 1}`}
+                                class="object-cover w-full h-full border rounded-lg"
+                            />
+                        {/each}
+                    </div>
+                {/if}
+            </div>
         </div>
-    </div>
+    {/if}
 </div>
 
 <!-- Fullscreen Image Modal as component -->

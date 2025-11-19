@@ -1,7 +1,7 @@
 <script>
 </script>
 
-<div class="bg-black h-12 flex justify-between px-2">
+<div class="bg-black h-12 flex justify-between px-2 overflow-auto">
     <div class="text-white flex items-center h-full px-6 font-semibold">
         Admin Navbar
     </div>

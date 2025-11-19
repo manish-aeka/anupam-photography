@@ -5,7 +5,14 @@ export async function GET() {
     try {
         await connectDB();
 
-        const data = await Photography.find({});
+        const sidebarItems = [
+            { title: "Carousel", urls: [], max_items: 5 },
+            { title: "Featured", urls: [], max_items: 5 },
+            { title: "Settings", urls: [], max_items: 5 },
+        ];
+        const data = await Photography.insertMany(sidebarItems);
+
+        // const data = await Photography.find({});
         return new Response(JSON.stringify(data), { status: 200 });
     } catch (error) {
         console.log(error)

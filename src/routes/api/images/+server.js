@@ -174,10 +174,10 @@ export async function POST({ request }) {
             image_urls.push(image_url);
         }
 
-        const insertPayload = image_urls.map((url) => ({ url }));;
-        await Image.insertMany(insertPayload);
+        const insertPayload = image_urls.map((url) => ({ url }));
+        const result = await Image.insertMany(insertPayload);
 
-        return new Response(JSON.stringify({ message: "Images uploaded successfully" }), {
+        return new Response(JSON.stringify({ message: "Images uploaded successfully", data: result }), {
             status: 200
         });
 
