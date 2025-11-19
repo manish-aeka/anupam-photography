@@ -15,6 +15,7 @@
     selectedImage,
   } from "$lib/stores/images";
   import { onMount } from "svelte";
+  import Footer from "$lib/components/Layout/Footer.svelte";
 
   onMount(() => {
     imagesStore.set(imagesData);
@@ -41,6 +42,7 @@
     <GalleryGrid images={images.galleryImages} />
   {/if}
   <ContactSection />
+  <Footer/>
 </main>
 
 <ImageModal />
