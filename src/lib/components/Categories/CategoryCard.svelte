@@ -18,7 +18,7 @@
       <div 
         data-aos="zoom-in"
         data-aos-delay={index * 200}
-        class="overflow-hidden border-2 border-gray-700 rounded-lg bg-gradient-to-br from-gray-500 to-gray-800 p-1"
+        class="overflow-hidden  p-1"
       >
           <img
   src={category.image}

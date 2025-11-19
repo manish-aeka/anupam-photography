@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   // @ts-nocheck
 
   import Navbar from "$lib/components/Layout/Navbar.svelte";
@@ -16,30 +16,41 @@
   } from "$lib/stores/images";
   import { onMount } from "svelte";
   import Footer from "$lib/components/Layout/Footer.svelte";
+  import { json } from "@sveltejs/kit";
 
+    export let data;
+
+  // Load data into store on client only
   onMount(() => {
-    imagesStore.set(imagesData);
+    imagesStore.set(data.sections);
   });
 
+
+
+
   // Auto get store content
-  $: images = $imagesStore;
+  $: sections = $imagesStore;
+
+  $: carousel = sections?.find?.(s => s.title === "Carousel");
+  $: featured = sections?.find?.(s => s.title === "Featured");
+  $: settings = sections?.find?.(s => s.title === "Settings");
 
   $: currentIndex = $currentSliderIndex;
 </script>
 
 <Navbar />
 <main>
-  {#if images && images.sliderImages}
-    <ImageSlider images={images.sliderImages} {currentIndex} />
-  {/if}
+   {#if  carousel.urls.length > 0}
+  <ImageSlider images={carousel.urls} />
+{/if}
 
   <!-- <AboutSection /> -->
-  {#if images && images.categories}
+  <!-- {#if images && images.categories}
     <CategoriesShowcase categories={images.categories} />
-  {/if}
+  {/if} -->
 
-  {#if images && images.galleryImages}
-    <GalleryGrid images={images.galleryImages} />
+  {#if  featured.urls.length>0}
+    <GalleryGrid images={featured.urls} />
   {/if}
   <ContactSection />
   <Footer/>
