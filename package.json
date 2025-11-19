@@ -18,7 +18,11 @@
 		"@sveltejs/kit": "^2.47.1",
 		"@sveltejs/vite-plugin-svelte": "^6.2.1",
 		"@tailwindcss/vite": "^4.1.14",
+<<<<<<< HEAD
 		"bits-ui": "^2.14.3",
+=======
+		"@types/aos": "^3.0.7",
+>>>>>>> d8cac7ac67d8beb317ff56cd4dadb9f05a704a98
 		"clsx": "^2.1.1",
 		"svelte": "^5.41.0",
 		"svelte-check": "^4.3.3",
@@ -30,6 +34,7 @@
 		"vite": "^7.1.10"
 	},
 	"dependencies": {
+		"aos": "^2.3.4",
 		"axios": "^1.13.2",
 		"jsonwebtoken": "^9.0.2",
 		"lucide-svelte": "^0.554.0",
