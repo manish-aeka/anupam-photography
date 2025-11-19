@@ -1,31 +1,21 @@
-<script lang="ts">
-    import { Button } from "$lib/components/ui/button/index.js";
-    import { onMount } from "svelte";
-
-    let images = $state([]);
-
-    const fetchImages = async () => {
-        console.log("fetch images");
-        const response = await fetch("/api/images");
-        const data = await response.json();
-        images = data.data;
-        console.log(data.data);
-    };
-
-    onMount(() => {
-        fetchImages();
-    });
+<script>
+  import Navbar from '$lib/components/Layout/Navbar.svelte';
+  import ImageSlider from '$lib/components/Hero/ImageSlider.svelte';
+  import AboutSection from '$lib/components/About/AboutSection.svelte';
+  import CategoriesShowcase from '$lib/components/Categories/CategoriesShowcase.svelte';
+  import GalleryGrid from '$lib/components/Gallery/GalleryGrid.svelte';
+  import ContactSection from '$lib/components/Contact/ContactSection.svelte';
+  import Footer from '$lib/components/Layout/footer.svelte';
+  import ImageModal from '$lib/components/Gallery/ImageModal.svelte';
 </script>
 
-{#each images as image}
-    {#each images as image}
-        <img
-            src={`data:${image.mimeType};base64,${image.url}`}
-            alt="Uploaded Image"
-            class="w-32 h-32 object-cover m-2"
-        />
-    {/each}
-{/each}
-
-<h1 class="text-red-500">hii</h1>
-<Button>Click me</Button>
+<Navbar />
+<main>
+  <ImageSlider />
+  <AboutSection />
+  <CategoriesShowcase />
+  <GalleryGrid />
+  <ContactSection />
+</main>
+<Footer />
+<ImageModal />
