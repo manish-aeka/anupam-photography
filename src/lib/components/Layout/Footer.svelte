@@ -1,5 +1,5 @@
 <script>
-  import { Instagram, Mail } from "lucide-svelte";
+  import { Instagram, Mail, User } from "lucide-svelte";
 
 </script>
 <section class="bg-gray-950 py-6 px-4">
@@ -26,6 +26,7 @@
       <div class="flex flex-row gap-4 text-gray-400  text-md pr-2">
         <a href="https://instagram.com" target="_blank" class="hover:text-blue-600 transition"><Instagram /></a>
         <a href="mailto:anupam@gmail.com" class="hover:text-blue-600 transition"><Mail /></a>
+        <a href="/admin" class="hover:text-blue-600 transition"><User/></a>
       </div>
     
 
