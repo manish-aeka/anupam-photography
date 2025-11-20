@@ -32,6 +32,7 @@
 		"vite": "^7.1.10"
 	},
 	"dependencies": {
+		"@sveltejs/adapter-node": "^5.4.0",
 		"aos": "^2.3.4",
 		"axios": "^1.13.2",
 		"jsonwebtoken": "^9.0.2",
