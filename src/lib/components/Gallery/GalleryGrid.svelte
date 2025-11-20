@@ -58,7 +58,7 @@ const getDelay = (i) => (i * 150) + Math.floor(Math.random() * 150);
         on:click={() => openModal(img)}
       >
         <img
-          src={img}
+          src={`${img}`}
           alt={"Gallery image " + (i + 1)}
           class="w-full h-full object-cover hover:scale-110 transition-transform duration-700"
         />

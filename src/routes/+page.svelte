@@ -3,57 +3,81 @@
 
   import Navbar from "$lib/components/Layout/Navbar.svelte";
   import ImageSlider from "$lib/components/Hero/ImageSlider.svelte";
-  import AboutSection from "$lib/components/About/AboutSection.svelte";
   import CategoriesShowcase from "$lib/components/Categories/CategoriesShowcase.svelte";
   import GalleryGrid from "$lib/components/Gallery/GalleryGrid.svelte";
   import ContactSection from "$lib/components/Contact/ContactSection.svelte";
-  import imagesData from "$lib/data/images.json";
-  import ImageModal from "$lib/components/Gallery/ImageModal.svelte";
-  import {
-    currentSliderIndex,
-    imagesStore,
-    selectedImage,
-  } from "$lib/stores/images";
-  import { onMount } from "svelte";
   import Footer from "$lib/components/Layout/Footer.svelte";
-  import { json } from "@sveltejs/kit";
+  import ImageModal from "$lib/components/Gallery/ImageModal.svelte";
 
-    export let data;
+  import { onMount } from "svelte";
 
-  // Load data into store on client only
+  import {
+    photographyActions,
+    photographyStore,
+    photographyLoading,
+    photographyError,
+  } from "$lib/stores/photography.js";
+
+  import { currentSliderIndex } from "$lib/stores/images.js";
+  import AboutSection from "$lib/components/About/AboutSection.svelte";
+  
+
+    let minTimeDone = false;
+  // Fetch data on client
   onMount(() => {
-    imagesStore.set(data.sections);
+    setTimeout(() => {
+      minTimeDone = true;
+    }, 3000);
+    photographyActions.fetchPhotographyData();
   });
 
+  // Stores
+  $: data = $photographyStore ?? [];
+  $: isLoading = $photographyLoading;
+  $: error = $photographyError;
 
-
-
-  // Auto get store content
-  $: sections = $imagesStore;
-
-  $: carousel = sections?.find?.(s => s.title === "Carousel");
-  $: featured = sections?.find?.(s => s.title === "Featured");
-  $: settings = sections?.find?.(s => s.title === "Settings");
+  // Extract sections
+  $: carousel = data.find?.((s) => s.title === "Carousel");
+  $: featured = data.find?.((s) => s.title === "Featured");
+  $: settings = data.find?.((s) => s.title === "Settings");
 
   $: currentIndex = $currentSliderIndex;
 </script>
 
 <Navbar />
+
 <main>
-   {#if  carousel.urls.length > 0}
-  <ImageSlider images={carousel.urls} />
-{/if}
+  {#if isLoading|| !minTimeDone}
+    <!-- Loader Video -->
+    <video autoplay muted loop playsinline class="loader-video">
+      <source src="/videos/loaderHD.mp4" type="video/mp4" />
+    </video>
+  {:else if error}
+    <p class="text-center text-red-500 py-20">{error}</p>
+  {:else}
+    <!-- PAGE CONTENT -->
+    {#if carousel?.urls?.length}
 
-  <!-- <AboutSection /> -->
-  <!-- {#if images && images.categories}
-    <CategoriesShowcase categories={images.categories} />
-  {/if} -->
+      <ImageSlider images={carousel.urls} />
+    {/if}
 
-  {#if  featured.urls.length>0}
-    <GalleryGrid images={featured.urls} />
+    {#if featured?.urls?.length}
+    <AboutSection/>
+      <CategoriesShowcase />
+      <GalleryGrid images={featured.urls} />
+      <ContactSection />
+      <Footer />
+    {/if}
   {/if}
-  <ContactSection />
-  <Footer/>
 </main>
 
 <ImageModal />
+
+<style>
+  .loader-video {
+    width: 100%;
+    height: 100vh;
+    object-fit: cover;
+    display: block;
+  }
+</style>

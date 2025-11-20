@@ -21,8 +21,8 @@
         class="overflow-hidden  p-1"
       >
           <img
-  src={category.image}
-  alt={category.title}
+     src={category.image}
+     alt={category.title}
   class="w-full h-[300px] md:h-[500px] object-cover rounded-md
          transition-all duration-1000 ease-out 
          hover:scale-105 "

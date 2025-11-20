@@ -19,7 +19,7 @@
     intervalId = setInterval(() => {
       // Get the current value directly from the store for the interval
       currentSliderIndex.update((n) => (n + 1) % images.length);
-    }, 1000); // Changed to 4 seconds
+    }, 1000); 
   }
 
   function stopSlider() {
@@ -42,7 +42,7 @@
   {#each images as image, index}
     <img
       src={image}
-      alt={`Photography Cover Image ${index + 1}`}
+      alt={`Image ${index + 1}`}
       class="absolute inset-0 w-full h-full object-cover
              transition-opacity duration-1000 ease-in-out
              {index === currentIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'}"
