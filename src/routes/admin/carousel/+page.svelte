@@ -1,6 +1,4 @@
 <script>
-    // @ts-nocheck
-
     import Navbar from "$lib/components/Layout/Navbar.svelte";
     import ImageSlider from "$lib/components/Hero/ImageSlider.svelte";
     import AboutSection from "$lib/components/About/AboutSection.svelte";
@@ -16,72 +14,186 @@
     } from "$lib/stores/images";
     import { onMount } from "svelte";
     import Button from "$lib/components/ui/button/button.svelte";
-    import { Edit, Eye, MonitorX, Upload } from "lucide-svelte";
-
+    import {
+        Edit,
+        Eye,
+        Loader2,
+        MonitorX,
+        Pencil,
+        Save,
+        Upload,
+    } from "lucide-svelte";
+    import {
+        photographyStore,
+        photographyActions,
+    } from "$lib/stores/photography";
+    // import { fileToBase64 } from "$lib/utils/fileToBase64";
     import { dndzone } from "$lib/dnd";
-    let showCarousel = false;
-    let currentIndex = $currentSliderIndex;
-    let carouselImages = imagesData?.sliderImages.map((src, i) => ({
-        id: `${i}-${Date.now()}`,
-        src,
-        alt: "",
-    }));
+    import { fileToBase64 } from "$lib/utils/utils";
 
-    async function handleDnd(e) {
-        carouselImages = e.detail.items;
-        // Update the order in the backend
-        try {
-            const urls = carouselImages.map((img) => img.src);
-            await fetch("/api/photography", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ title: "Carousel", urls }),
-            });
-        } catch (err) {
-            console.error("Failed to update carousel order:", err);
+    let showImage = false;
+    let currentIndex = $currentSliderIndex;
+    let images = $state(
+        $photographyStore
+            ?.find((item) => item.title === "Carousel")
+            .urls.map((url, i) => ({
+                id: i,
+                url,
+                alt: "",
+            })),
+    );
+
+    let pageName = "Carousel";
+    let isEditable = $state(false);
+    let updatedImages = $state([]);
+
+    // For editing image
+    let editFileInput = null;
+    let editingIdx = null;
+    let loading = $state(false);
+
+    function handleEditClick(idx) {
+        editingIdx = idx;
+        if (editFileInput) {
+            editFileInput.value = "";
+            editFileInput.click();
         }
     }
 
-    // Auto get store content
-    // $: images = $imagesStore;
+    async function handleUpdate() {
+        // Update the order in the backend
+        if (updatedImages.length === 0) {
+            alert(`No changes made to update ${pageName}.`);
+            return;
+        }
+        try {
+            loading = true;
+            await photographyActions.updatePhotographyDB(
+                pageName,
+                updatedImages,
+            );
+            updatedImages = [];
+            isEditable = false;
+
+            alert(`${pageName} order updated successfully.`);
+        } catch (err) {
+            console.error(`Failed to update ${pageName} order:`, err);
+        } finally {
+            loading = false;
+        }
+    }
+
+    async function handleEditFileChange(e) {
+        const input = e.target;
+
+        if (!input.files || !input.files[0] || editingIdx === null) return;
+
+        const file = input.files[0];
+
+        // Convert → base64 (full data URL)
+        const base64 = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file); // FULL BASE64 (with mime)
+        });
+
+        // Update ONLY this image index
+        images[editingIdx].url = base64;
+
+        // Trigger Svelte reactivity
+        images = [...images];
+        updatedImages = images.map((img) => img.url);
+
+        // Close editing mode
+        editingIdx = null;
+    }
+
+    async function handleDnd(e) {
+        images = e.detail.items;
+        updatedImages = images.map((img) => img.url);
+    }
 
     function toggleCarousel() {
-        showCarousel = !showCarousel;
+        showImage = !showImage;
     }
 </script>
 
 <div class="h-full w-full relative">
-    <div
-        class="absolute bottom-10 right-10 z-50 bg-blue-600 p-2 rounded-full cursor-pointer"
-        on:click={toggleCarousel}
+    <div class="flex justify-end">
+        <Button
+            variant="outline"
+            disabled={loading}
+            class={`mb-4 flex items-center gap-2 text-white 
+        ${isEditable ? "bg-green-600 hover:bg-green-500" : "bg-blue-600 hover:bg-blue-500"} 
+        border-none cursor-pointer`}
+            onclick={() => {
+                if (isEditable) handleUpdate();
+                isEditable = true;
+            }}
+        >
+            {#if loading}
+                <Loader2 class="w-4 h-4 animate-spin" />
+                Updating...
+            {:else if !isEditable}
+                <Pencil class="w-4 h-4" />
+                Edit {pageName}
+            {:else}
+                <Save class="w-4 h-4" />
+                Update {pageName}
+            {/if}
+        </Button>
+    </div>
+    <!-- <button
+        type="button"
+        class="absolute bottom-10 right-10 z-50 bg-blue-600 p-2 rounded-full cursor-pointer focus:outline-none"
+        onclick={toggleCarousel}
+        aria-label={showImage ? "Hide Carousel" : "Show Carousel"}
     >
         <svelte:component
-            this={showCarousel ? MonitorX : Eye}
+            this={showImage ? MonitorX : Eye}
             class="text-white w-8 h-8"
         />
-    </div>
+    </button> -->
 
-    {#if showCarousel}
-        <ImageSlider images={carouselImages} {currentIndex} />
-    {:else}
-        <div
-            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
-            use:dndzone={{ items: carouselImages, flipDurationMs: 200 }}
-            on:consider={handleDnd}
-            on:finalize={handleDnd}
-        >
-            {#each carouselImages as img, idx (img.id)}
-                <div class="relative cursor-pointer">
+    <!-- {#if showImage}
+        <ImageSlider {images} {currentIndex} />
+    {:else} -->
+    <div
+        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
+        use:dndzone={{ items: images, flipDurationMs: 200 }}
+        onconsider={handleDnd}
+        onfinalize={handleDnd}
+    >
+        {#each images as img, idx (img.id)}
+            <div class="relative cursor-pointer">
+                {#if isEditable}
                     <Edit
-                        class="absolute top-2 right-2 text-white w-6 h-6 cursor-pointer hover:bg-blue-500 rounded-full p-1"
+                        class="absolute top-2 right-2 text-white w-6 h-6 cursor-pointer bg-gray-800 hover:bg-blue-500 rounded-full p-1"
+                        onclick={() => handleEditClick(idx)}
                     />
-                    <img
+                {/if}
+                <!-- Hidden file input for editing image -->
+                <input
+                    type="file"
+                    accept="image/*"
+                    class="hidden"
+                    bind:this={editFileInput}
+                    onchange={handleEditFileChange}
+                />
+                <!-- <img
                         src={img.src}
                         alt={img.alt || `Image ${idx + 1}`}
                         class="object-center w-82 h-62 border rounded-lg"
-                    />
-                </div>
-            {/each}
-        </div>
-    {/if}
+                    /> -->
+
+                <img
+                    src={img.url}
+                    alt={img.alt || `Image ${idx + 1}`}
+                    class="object-cover w-full h-full border rounded-lg"
+                />
+            </div>
+        {/each}
+    </div>
+    <!-- {/if} -->
 </div>

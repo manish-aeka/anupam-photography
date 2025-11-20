@@ -254,7 +254,7 @@
                     >
                         {#each images as img, idx}
                             <img
-                                src={`data:image/jpeg;base64,${img.url}`}
+                                src={img.url}
                                 alt={img.alt || `Image ${idx + 1}`}
                                 class="object-cover w-full h-full border rounded-lg"
                             />

@@ -5,9 +5,8 @@ export const isAdmin = (user) => {
 
 export async function fileToBase64(file) {
     const buffer = Buffer.from(await file.arrayBuffer());
-    return buffer.toString("base64");
+    return `data:image/jpeg;base64,${buffer.toString("base64")}`;
 }
-
 
 export function isValidImageType(file) {
     const allowedTypes = ["image/jpeg", "image/png", "image/webp"];

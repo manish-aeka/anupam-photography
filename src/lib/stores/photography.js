@@ -39,27 +39,43 @@ export const photographyActions = {
 
     updatePhotographyDB: async (title, updatedData) => {
         try {
-            photographyLoading.set(true);
+            // photographyLoading.set(true);
             photographyError.set(null);
-            const payload = { title, urls: [...updatedData] };
-            const response = await fetch(`/api/photography/${title}`, {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json"
-                },
+
+            const payload = {
+                title,
+                urls: Array.isArray(updatedData) ? [...updatedData] : []
+            };
+
+            const response = await fetch("/api/photography", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
             });
 
             if (!response.ok) {
-                throw new Error("Failed to update photography data");
+                const msg = await response.text().catch(() => "Unknown error");
+                throw new Error(msg || "Failed to update photography data");
             }
 
-            photographyStore.set(updatedData)
+            // Optional: use response JSON if backend returns the updated record
+            // const result = await response.json();
 
-        } catch (error) {
-            photographyError.set(error.message);
+            // Update Svelte store
+            photographyStore.update(items =>
+                items.map(item =>
+                    item.title === title
+                        ? { ...item, urls: [...payload.urls] }
+                        : item
+                )
+            );
+
+        } catch (err) {
+            console.error("Update error:", err);
+            photographyError.set(err.message || "Unexpected error");
         } finally {
             photographyLoading.set(false);
         }
     }
+
 };

@@ -10,4 +10,4 @@ const PhotographySchema = new mongoose.Schema({
 );
 
 // Prevent model overwrite on HMR
-export const Photography = mongoose.models.PHOTOGRAPHYS || mongoose.model("PHOTOGRAPHYS", PhotographySchema);
+export const Photography = mongoose.models.PHOTOGRAPHYS || mongoose.model("PHOTOGRAPHY", PhotographySchema);
