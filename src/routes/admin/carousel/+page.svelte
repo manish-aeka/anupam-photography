@@ -5,7 +5,7 @@
     let images = $state(
         $photographyStore
             ?.find((item) => item.title === pageName)
-            .urls.map((url, i) => ({
+            ?.urls.map((url, i) => ({
                 id: i,
                 url,
                 alt: "",

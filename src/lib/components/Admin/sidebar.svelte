@@ -3,12 +3,21 @@
     import { derived } from "svelte/store";
     import { goto } from "$app/navigation";
     import { onMount } from "svelte";
-    import { GalleryHorizontal, Image, Upload, Settings } from "lucide-svelte";
+    import {
+        GalleryHorizontal,
+        Image,
+        Upload,
+        Settings,
+        Grid,
+        User,
+    } from "lucide-svelte";
 
     const currentPath = derived(page, ($page) => $page.url.pathname);
 
     const sidebarItems = [
         { name: "Carousel", icon: GalleryHorizontal, url: "/admin/carousel" },
+        { name: "About", icon: User, url: "/admin/about" },
+        { name: "Category", icon: Grid, url: "/admin/category" },
         { name: "Featured", icon: Image, url: "/admin/featured" },
         { name: "Upload", icon: Upload, url: "/admin/upload" },
         { name: "Settings", icon: Settings, url: "/admin/settings" },

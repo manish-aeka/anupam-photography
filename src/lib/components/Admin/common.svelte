@@ -185,7 +185,7 @@
 </div>
 
 <FullscreenModal
-    images={images.map((f) => ({ src: f.url || "", alt: f.name ?? "" }))}
+    images={images?.map((f) => ({ src: f.url || "", alt: f.name ?? "" }))}
     index={fullscreenIndex ?? 0}
     open={fullscreenIndex !== null && images.length > 0}
     onClose={closeFullscreen}
