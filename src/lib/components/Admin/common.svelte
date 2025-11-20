@@ -7,6 +7,7 @@
     } from "$lib/stores/photography";
     // import { fileToBase64 } from "$lib/utils/fileToBase64";
     import { dndzone } from "$lib/dnd";
+    import FullscreenModal from "../ui/FullscreenModal.svelte";
 
     let { pageName, images } = $props();
 
@@ -19,6 +20,7 @@
     let editFileInput = null;
     let editingIdx = null;
     let loading = $state(false);
+    let fullscreenIndex = $state(null);
 
     function handleEditClick(idx) {
         editingIdx = idx;
@@ -85,6 +87,14 @@
     function toggleCarousel() {
         showImage = !showImage;
     }
+
+    function closeFullscreen() {
+        fullscreenIndex = null;
+    }
+
+    function handleEditButtonClick(idx) {
+        fullscreenIndex = idx;
+    }
 </script>
 
 <div class="h-full w-full relative">
@@ -139,7 +149,10 @@
         onfinalize={handleDnd}
     >
         {#each images as img, idx (img.id)}
-            <div class="relative cursor-pointer">
+            <div
+                class="relative cursor-pointer"
+                onclick={() => handleEditButtonClick(idx)}
+            >
                 {#if isEditable}
                     <Edit
                         class="absolute top-2 right-2 text-white w-6 h-6 cursor-pointer bg-gray-800 hover:bg-blue-500 rounded-full p-1"
@@ -170,3 +183,10 @@
     </div>
     <!-- {/if} -->
 </div>
+
+<FullscreenModal
+    images={images.map((f) => ({ src: f.url || "", alt: f.name ?? "" }))}
+    index={fullscreenIndex ?? 0}
+    open={fullscreenIndex !== null && images.length > 0}
+    onClose={closeFullscreen}
+/>
