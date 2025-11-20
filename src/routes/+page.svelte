@@ -1,46 +1,83 @@
-<script>
+<script lang="ts">
   // @ts-nocheck
 
   import Navbar from "$lib/components/Layout/Navbar.svelte";
   import ImageSlider from "$lib/components/Hero/ImageSlider.svelte";
-  import AboutSection from "$lib/components/About/AboutSection.svelte";
   import CategoriesShowcase from "$lib/components/Categories/CategoriesShowcase.svelte";
   import GalleryGrid from "$lib/components/Gallery/GalleryGrid.svelte";
   import ContactSection from "$lib/components/Contact/ContactSection.svelte";
-  import imagesData from "$lib/data/images.json";
+  import Footer from "$lib/components/Layout/Footer.svelte";
   import ImageModal from "$lib/components/Gallery/ImageModal.svelte";
-  import {
-    currentSliderIndex,
-    imagesStore,
-    selectedImage,
-  } from "$lib/stores/images";
+
   import { onMount } from "svelte";
 
+  import {
+    photographyActions,
+    photographyStore,
+    photographyLoading,
+    photographyError,
+  } from "$lib/stores/photography.js";
+
+  import { currentSliderIndex } from "$lib/stores/images.js";
+  import AboutSection from "$lib/components/About/AboutSection.svelte";
+  
+
+    let minTimeDone = false;
+  // Fetch data on client
   onMount(() => {
-    imagesStore.set(imagesData);
+    setTimeout(() => {
+      minTimeDone = true;
+    }, 3000);
+    photographyActions.fetchPhotographyData();
   });
 
-  // Auto get store content
-  $: images = $imagesStore;
+  // Stores
+  $: data = $photographyStore ?? [];
+  $: isLoading = $photographyLoading;
+  $: error = $photographyError;
+
+  // Extract sections
+  $: carousel = data.find?.((s) => s.title === "Carousel");
+  $: featured = data.find?.((s) => s.title === "Featured");
+  $: settings = data.find?.((s) => s.title === "Settings");
 
   $: currentIndex = $currentSliderIndex;
 </script>
 
 <Navbar />
+
 <main>
-  {#if images && images.sliderImages}
-    <ImageSlider images={images.sliderImages} {currentIndex} />
-  {/if}
+  {#if isLoading|| !minTimeDone}
+    <!-- Loader Video -->
+    <video autoplay muted loop playsinline class="loader-video">
+      <source src="/videos/loaderHD.mp4" type="video/mp4" />
+    </video>
+  {:else if error}
+    <p class="text-center text-red-500 py-20">{error}</p>
+  {:else}
+    <!-- PAGE CONTENT -->
+    {#if carousel?.urls?.length}
 
-  <!-- <AboutSection /> -->
-  {#if images && images.categories}
-    <CategoriesShowcase categories={images.categories} />
-  {/if}
+      <ImageSlider images={carousel.urls} />
+    {/if}
 
-  {#if images && images.galleryImages}
-    <GalleryGrid images={images.galleryImages} />
+    {#if featured?.urls?.length}
+    <AboutSection/>
+      <CategoriesShowcase />
+      <GalleryGrid images={featured.urls} />
+      <ContactSection />
+      <Footer />
+    {/if}
   {/if}
-  <ContactSection />
 </main>
 
 <ImageModal />
+
+<style>
+  .loader-video {
+    width: 100%;
+    height: 100vh;
+    object-fit: cover;
+    display: block;
+  }
+</style>

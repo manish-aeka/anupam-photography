@@ -17,7 +17,7 @@
 
 <nav
   class="fixed top-0 left-0 w-full flex justify-between items-center px-2 py-3 md:px-10 md:py-5 
-         rounded-b-xl z-50 transition-all duration-300
+          z-50 transition-all duration-300
          {scrolled ? 'bg-gray-900 text-amber-50 shadow-md' : ''}"
 >
   <a href="/" class="hover:text-yellow-300 text-xl font-bold">ADP</a>
