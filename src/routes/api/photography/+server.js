@@ -5,14 +5,14 @@ export async function GET() {
     try {
         await connectDB();
 
-        const sidebarItems = [
-            { title: "Carousel", urls: [], max_items: 5 },
-            { title: "Featured", urls: [], max_items: 5 },
-            { title: "Settings", urls: [], max_items: 5 },
-        ];
-        const data = await Photography.insertMany(sidebarItems);
+        // const sidebarItems = [
+        //     { title: "Carousel", urls: [], max_items: 5 },
+        //     { title: "Featured", urls: [], max_items: 5 },
+        //     { title: "Settings", urls: [], max_items: 5 },
+        // ];
+        // const data = await Photography.insertMany(sidebarItems);
 
-        // const data = await Photography.find({});
+        const data = await Photography.find({});
         return new Response(JSON.stringify(data), { status: 200 });
     } catch (error) {
         console.log(error)
@@ -40,6 +40,8 @@ export async function POST({ request }) {
         }
 
         await connectDB();
+
+        console.log("body:", body)
 
         const { title, urls } = body;
 
