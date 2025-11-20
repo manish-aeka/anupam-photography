@@ -9,4 +9,4 @@ const ImageSchema = new mongoose.Schema({
 });
 
 // Prevent model overwrite on HMR
-export const Image = mongoose.models.Upload || mongoose.model("IMAGES", ImageSchema);
+export const Image = mongoose.models.Upload || mongoose.model("IMAGE", ImageSchema);
