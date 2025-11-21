@@ -212,7 +212,7 @@
     <!-- <h1>{images?.length}</h1> -->
 
     <div
-        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
+        class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4"
         use:dndzone={{
             items: images,
             flipDurationMs: 200,

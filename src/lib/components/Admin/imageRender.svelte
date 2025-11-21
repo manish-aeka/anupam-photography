@@ -5,5 +5,5 @@
 <img
     src={url}
     alt={alt || `Image`}
-    class="object-cover w-full h-full border rounded-lg"
+    class="object-center h-56 w-62 border rounded-lg"
 />

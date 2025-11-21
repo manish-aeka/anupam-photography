@@ -251,7 +251,7 @@
                     <p class="text-white">No images uploaded yet.</p>
                 {:else}
                     <div
-                        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
+                        class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-4"
                     >
                         {#each images as img, idx}
                             <ImageRender url={img.url} alt={img.alt} />
