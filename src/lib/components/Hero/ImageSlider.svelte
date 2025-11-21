@@ -1,6 +1,5 @@
 <script>
   // @ts-nocheck
-
   import { imagesStore, currentSliderIndex } from "$lib/stores/images.js";
   import { onMount, beforeUpdate } from "svelte";
 
@@ -17,9 +16,8 @@
 
   function startSlider() {
     intervalId = setInterval(() => {
-      // Get the current value directly from the store for the interval
       currentSliderIndex.update((n) => (n + 1) % images.length);
-    }, 1000); 
+    }, 2500); 
   }
 
   function stopSlider() {
@@ -34,7 +32,7 @@
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
-  class="relative h-screen w-full overflow-hidden"
+  class="relative w-full overflow-hidden  h-[45vh] md:h-screen"
   onmouseenter={stopSlider}
   onmouseleave={startSlider}
 >
@@ -50,12 +48,12 @@
   {/each}
 
   <!-- Dots -->
-  <div class="absolute bottom-10 w-full flex justify-center gap-3 z-20">
+  <div class="absolute bottom-4 md:bottom-10 w-full flex justify-center gap-2 md:gap-3 z-20">
     {#each images as _, index}
       <!-- svelte-ignore element_invalid_self_closing_tag -->
       <button
         onclick={() => changeSlide(index)}
-        class="w-3 h-3 rounded-full cursor-pointer transition
+        class="w-2 h-2 md:w-3 md:h-3 rounded-full cursor-pointer transition
                {index === currentIndex ? 'bg-white' : 'bg-white/50'}"
         aria-label={`Go to slide ${index + 1}`}
       />

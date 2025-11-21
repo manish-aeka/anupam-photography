@@ -8,7 +8,7 @@
   import ContactSection from "$lib/components/Contact/ContactSection.svelte";
   import Footer from "$lib/components/Layout/Footer.svelte";
   import ImageModal from "$lib/components/Gallery/ImageModal.svelte";
-
+  import { imagesStore } from "$lib/stores/images.js";
   import { onMount } from "svelte";
 
   import {
@@ -23,15 +23,19 @@
   
 
     let minTimeDone = false;
+    const tempData = []
   // Fetch data on client
   onMount(() => {
-    setTimeout(() => {
-      minTimeDone = true;
-    }, 3000);
+    // setTimeout(() => {
+    //   minTimeDone = true;
+    // }, 3000);
     photographyActions.fetchPhotographyData();
+   
+   
   });
 
   // Stores
+  // $:images=$imagesStore
   $: data = $photographyStore ?? [];
   $: isLoading = $photographyLoading;
   $: error = $photographyError;
@@ -40,14 +44,28 @@
   $: carousel = data.find?.((s) => s.title === "Carousel");
   $: featured = data.find?.((s) => s.title === "Featured");
   $: settings = data.find?.((s) => s.title === "Settings");
-
-  $: currentIndex = $currentSliderIndex;
+  
+  $: currentIndex = $currentSliderIndex
+  
 </script>
 
 <Navbar />
 
-<main>
-  {#if isLoading|| !minTimeDone}
+<!-- <main class="w-full overflow-hidden " >
+  
+  
+     <ImageSlider images={images.sliderImages} index={currentIndex}/>
+   <AboutSection/>
+  <CategoriesShowcase/>
+    <GalleryGrid images={images.galleryImages}/>
+    <ContactSection/>
+    <Footer/>
+</main>
+
+<ImageModal /> -->
+
+<main class="w-full overflow-hidden ">
+  {#if isLoading}
     <!-- Loader Video -->
     <video autoplay muted loop playsinline class="loader-video">
       <source src="/videos/loaderHD.mp4" type="video/mp4" />
@@ -60,6 +78,7 @@
 
       <ImageSlider images={carousel.urls} />
     {/if}
+   
 
     {#if featured?.urls?.length}
     <AboutSection/>
@@ -68,10 +87,15 @@
       <ContactSection />
       <Footer />
     {/if}
-  {/if}
-</main>
+   
+  {/if}</main>
+
+
 
 <ImageModal />
+
+
+
 
 <style>
   .loader-video {
