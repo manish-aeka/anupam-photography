@@ -5,6 +5,7 @@
     import FullscreenModal from "$lib/components/ui/FullscreenModal.svelte";
     import { onMount } from "svelte";
     import { page } from "$app/stores";
+    import ImageRender from "$lib/components/Admin/imageRender.svelte";
 
     let fileInput: HTMLInputElement | null = null;
 
@@ -253,11 +254,7 @@
                         class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
                     >
                         {#each images as img, idx}
-                            <img
-                                src={img.url}
-                                alt={img.alt || `Image ${idx + 1}`}
-                                class="object-cover w-full h-full border rounded-lg"
-                            />
+                            <ImageRender url={img.url} alt={img.alt} />
                         {/each}
                     </div>
                 {/if}

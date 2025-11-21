@@ -24,7 +24,7 @@ export async function GET() {
     }
 }
 
-export async function POST({ request }) {
+export async function PUT({ request }) {
     try {
         const user = null; // Replace with actual user retrieval logic
         if (!isAdmin(user)) {
@@ -116,4 +116,5 @@ export async function DELETE({ params, request }) {
         );
     }
 }
+
 

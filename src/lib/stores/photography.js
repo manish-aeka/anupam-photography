@@ -48,7 +48,7 @@ export const photographyActions = {
             };
 
             const response = await fetch("/api/photography", {
-                method: "POST",
+                method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(payload)
             });
