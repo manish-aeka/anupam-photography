@@ -1,6 +1,14 @@
 <script>
     import Button from "$lib/components/ui/button/button.svelte";
-    import { Edit, Loader2, Pencil, Save, Upload, X } from "lucide-svelte";
+    import {
+        Edit,
+        Loader2,
+        Pencil,
+        Save,
+        Trash2,
+        Upload,
+        X,
+    } from "lucide-svelte";
     import {
         photographyStore,
         photographyActions,
@@ -108,6 +116,14 @@
         isEditable = true;
         openSelectImageModal = true;
     }
+
+    function handleDelete(idx) {
+        if (confirm("Are you sure you want to delete this image?")) {
+            images = images.filter((_, i) => i !== idx);
+            updatedImages = images.map((img) => img.url);
+        }
+    }
+
     const fetchImages = async () => {
         try {
             // Placeholder for fetching images logic
@@ -208,10 +224,16 @@
         {#each images as img, idx (img?.id)}
             <div class="relative cursor-pointer">
                 {#if isEditable}
-                    <Edit
-                        class="absolute top-2 right-2 text-white w-6 h-6 cursor-pointer bg-gray-800 hover:bg-blue-500 rounded-full p-1"
-                        onclick={() => handleEditClick(idx)}
-                    />
+                    <div class="absolute top-2 right-2 flex gap-1 z-10">
+                        <Edit
+                            class="text-white w-6 h-6 cursor-pointer bg-gray-800 hover:bg-blue-500 rounded-full p-1"
+                            onclick={() => handleEditClick(idx)}
+                        />
+                        <Trash2
+                            class="text-white w-6 h-6 cursor-pointer bg-gray-800 hover:bg-red-500 rounded-full p-1"
+                            onclick={() => handleDelete(idx)}
+                        />
+                    </div>
                 {/if}
                 <!-- Hidden file input for editing image -->
                 <input
