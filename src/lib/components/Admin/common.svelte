@@ -1,6 +1,6 @@
 <script>
     import Button from "$lib/components/ui/button/button.svelte";
-    import { Edit, Loader2, Pencil, Save } from "lucide-svelte";
+    import { Edit, Loader2, Pencil, Save, Upload, X } from "lucide-svelte";
     import {
         photographyStore,
         photographyActions,
@@ -8,26 +8,33 @@
     // import { fileToBase64 } from "$lib/utils/fileToBase64";
     import { dndzone } from "$lib/dnd";
     import FullscreenModal from "../ui/FullscreenModal.svelte";
+    import { onMount } from "svelte";
+    import ImageRender from "./imageRender.svelte";
 
-    let { pageName, images } = $props();
+    let { pageName, images: originalImages, maxItems } = $props();
 
     let showImage = false;
-
+    let images = $state([]);
+    let savedImages = $state([]);
     let isEditable = $state(false);
     let updatedImages = $state([]);
+
+    // Initialize local images from props
+    $effect(() => {
+        images = [...originalImages];
+    });
 
     // For editing image
     let editFileInput = null;
     let editingIdx = null;
     let loading = $state(false);
     let fullscreenIndex = $state(null);
+    let openSelectImageModal = $state(false);
+    let imagestoShowOnModal = $state([]);
 
     function handleEditClick(idx) {
+        openSelectImageModal = true;
         editingIdx = idx;
-        if (editFileInput) {
-            editFileInput.value = "";
-            editFileInput.click();
-        }
     }
 
     async function handleUpdate() {
@@ -95,19 +102,59 @@
     function handleEditButtonClick(idx) {
         fullscreenIndex = idx;
     }
+
+    function handleAddMoreImage() {
+        editingIdx = null;
+        isEditable = true;
+        openSelectImageModal = true;
+    }
+    const fetchImages = async () => {
+        try {
+            // Placeholder for fetching images logic
+            const response = await fetch("/api/images?order=desc");
+            const data = await response.json();
+            imagestoShowOnModal = data?.data;
+        } catch (error) {
+            console.log("Error: ", error.message);
+        } finally {
+            loading = false;
+        }
+    };
+
+    onMount(() => {
+        fetchImages();
+    });
 </script>
 
 <div class="h-full w-full relative">
-    <div class="flex justify-end">
+    <div class="flex justify-end gap-2 mb-4">
+        {#if images.length < maxItems}
+            <Button
+                variant="outline"
+                disabled={loading}
+                class="flex items-center gap-2 text-white bg-blue-600 hover:bg-blue-500 border-none cursor-pointer"
+                onclick={() => {
+                    handleAddMoreImage();
+                }}
+            >
+                <Upload class="w-4 h-4" />
+                Upload
+            </Button>
+        {/if}
         <Button
             variant="outline"
             disabled={loading}
-            class={`mb-4 flex items-center gap-2 text-white 
+            class={`flex items-center gap-2 text-white 
         ${isEditable ? "bg-green-600 hover:bg-green-500" : "bg-blue-600 hover:bg-blue-500"} 
         border-none cursor-pointer`}
             onclick={() => {
-                if (isEditable) handleUpdate();
-                isEditable = true;
+                if (isEditable) {
+                    handleUpdate();
+                } else {
+                    // Save current state before editing
+                    savedImages = JSON.parse(JSON.stringify(images));
+                    isEditable = true;
+                }
             }}
         >
             {#if loading}
@@ -121,22 +168,32 @@
                 Update {pageName}
             {/if}
         </Button>
-    </div>
-    <!-- <button
-        type="button"
-        class="absolute bottom-10 right-10 z-50 bg-blue-600 p-2 rounded-full cursor-pointer focus:outline-none"
-        onclick={toggleCarousel}
-        aria-label={showImage ? "Hide Carousel" : "Show Carousel"}
-    >
-        <svelte:component
-            this={showImage ? MonitorX : Eye}
-            class="text-white w-8 h-8"
-        />
-    </button> -->
 
-    <!-- {#if showImage}
-        <ImageSlider {images} {currentIndex} />
-    {:else} -->
+        {#if isEditable}
+            <Button
+                variant="outline"
+                disabled={loading}
+                class="flex items-center gap-2 text-white bg-red-600 hover:bg-red-500 border-none cursor-pointer"
+                onclick={() => {
+                    // Restore previous state
+                    images = JSON.parse(JSON.stringify(savedImages));
+                    updatedImages = [];
+                    isEditable = false;
+                }}
+            >
+                <X class="w-4 h-4" />
+                Cancel
+            </Button>
+        {/if}
+    </div>
+
+    {#if images.length === 0}
+        <div class="flex items-center justify-center h-60 w-full">
+            <p class="text-gray-500 text-lg">No images available.</p>
+        </div>
+    {/if}
+
+    <!-- <h1>{images?.length}</h1> -->
 
     <div
         class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4"
@@ -148,11 +205,8 @@
         onconsider={handleDnd}
         onfinalize={handleDnd}
     >
-        {#each images as img, idx (img.id)}
-            <div
-                class="relative cursor-pointer"
-                onclick={() => handleEditButtonClick(idx)}
-            >
+        {#each images as img, idx (img?.id)}
+            <div class="relative cursor-pointer">
                 {#if isEditable}
                     <Edit
                         class="absolute top-2 right-2 text-white w-6 h-6 cursor-pointer bg-gray-800 hover:bg-blue-500 rounded-full p-1"
@@ -167,21 +221,16 @@
                     bind:this={editFileInput}
                     onchange={handleEditFileChange}
                 />
-                <!-- <img
-                        src={img.src}
-                        alt={img.alt || `Image ${idx + 1}`}
-                        class="object-center w-82 h-62 border rounded-lg"
-                    /> -->
 
-                <img
-                    src={img.url}
-                    alt={img.alt || `Image ${idx + 1}`}
-                    class="object-cover w-full h-full border rounded-lg"
-                />
+                <button
+                    class="cursor-pointer"
+                    onclick={() => handleEditButtonClick(idx)}
+                >
+                    <ImageRender url={img.url} alt={img.alt} />
+                </button>
             </div>
         {/each}
     </div>
-    <!-- {/if} -->
 </div>
 
 <FullscreenModal
@@ -190,3 +239,60 @@
     open={fullscreenIndex !== null && images.length > 0}
     onClose={closeFullscreen}
 />
+{#if openSelectImageModal}
+    <div
+        class="absolute top-20 right-20 h-[500px] w-[500px] bg-gray-800 rounded-lg p-2"
+    >
+        <X
+            class="w-8 h-8 cursor-pointer text-white bg-red-500 hover:bg-red-600 rounded-full p-2 absolute top-2 right-2"
+            onclick={() => (openSelectImageModal = false)}
+        />
+        <div class="flex flex-col gap-2 h-full">
+            <h1 class="text-white text-xl text-center border-b pb-2">
+                Select From Existing Images
+            </h1>
+
+            <div class="overflow-auto grid grid-cols-3 gap-2 p-2">
+                {#each imagestoShowOnModal as img, idx}
+                    <button
+                        class="p-2 hover:bg-gray-700 rounded cursor-pointer"
+                        onclick={() => {
+                            if (editingIdx !== null) {
+                                // Update existing image
+                                images[editingIdx] = {
+                                    ...images[editingIdx],
+                                    url: img.url,
+                                    alt: img.alt || images[editingIdx].alt,
+                                };
+
+                                images = [...images]; // Trigger reactivity
+                                updatedImages = images.map((i) => i.url);
+
+                                editingIdx = null;
+                                openSelectImageModal = false;
+                            } else {
+                                // Add new image
+                                const newImage = {
+                                    id: images.length,
+                                    url: img.url,
+                                    alt: img.alt || "New Image",
+                                };
+
+                                images = [...images, newImage];
+                                updatedImages = images.map((i) => i.url);
+
+                                openSelectImageModal = false;
+                            }
+                        }}
+                    >
+                        <img
+                            src={img.url}
+                            alt={img.alt || `Image ${idx + 1}`}
+                            class=" object-cover rounded"
+                        />
+                    </button>
+                {/each}
+            </div>
+        </div>
+    </div>
+{/if}
